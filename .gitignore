@@ -1,0 +1,21 @@
+# Python bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local databases (ignore personal finance transaction records)
+python_app/data/
+
+# Exported visualizations and reports
+python_app/exports/
+*.png
+*.csv
+
+# Environment and IDE settings
+.vscode/
+.idea/
+.env
+venv/
+env/
