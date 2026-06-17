@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense Tracker - Personal Finance System</title>
+    <!-- Google Fonts - Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Vanilla CSS Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i data-lucide="wallet"></i>
+                </div>
+                <h2>Smart Tracker</h2>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active" data-target="dashboard-section">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item" data-target="transactions-section">
+                    <i data-lucide="arrow-left-right"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="#" class="menu-item" data-target="categories-section">
+                    <i data-lucide="tags"></i>
+                    <span>Categories</span>
+                </a>
+                <a href="#" class="menu-item" id="export-data-btn">
+                    <i data-lucide="download"></i>
+                    <span>Export JSON</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-badge">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <span class="user-name">John Doe</span>
+                        <span class="user-role">Premium Member</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard View -->
+        <main class="main-content">
+            <!-- Top Nav Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <p class="greeting">Welcome Back,</p>
+                    <h1>Financial Overview</h1>
+                </div>
+                <div class="header-right">
+                    <div class="date-badge">
+                        <i data-lucide="calendar"></i>
+                        <span id="current-date-display">June 17, 2026</span>
+                    </div>
+                    <button class="btn btn-primary" id="open-add-modal-btn">
+                        <i data-lucide="plus"></i>
+                        <span>Add Transaction</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Section -->
+            <section id="dashboard-section" class="tab-content active">
+                <!-- Summary KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card balance-card">
+                        <div class="kpi-icon">
+                            <i data-lucide="circle-dollar-sign"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <h3>Total Balance</h3>
+                            <div class="kpi-value" id="total-balance-display">₹0.00</div>
+                            <span class="kpi-delta positive" id="balance-delta-display">
+                                <i data-lucide="trending-up"></i> Net Position
+                            </span>
+                        </div>
+                    </div>
+                    <div class="kpi-card income-card">
+                        <div class="kpi-icon">
+                            <i data-lucide="trending-up"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <h3>Total Income</h3>
+                            <div class="kpi-value" id="total-income-display">₹0.00</div>
+                            <span class="kpi-delta positive" id="income-delta-display">+0% this period</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card expense-card">
+                        <div class="kpi-icon">
+                            <i data-lucide="trending-down"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <h3>Total Expenses</h3>
+                            <div class="kpi-value" id="total-expenses-display">₹0.00</div>
+                            <span class="kpi-delta negative" id="expense-delta-display">+0% this period</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card savings-card">
+                        <div class="kpi-icon">
+                            <i data-lucide="piggy-bank"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <h3>Savings Rate</h3>
+                            <div class="kpi-value" id="savings-rate-display">0%</div>
+                            <div class="savings-progress-bar">
+                                <div class="savings-progress-fill" id="savings-rate-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card line-chart-card">
+                        <div class="chart-header">
+                            <h3>Net Balance Accumulation Trend</h3>
+                            <i data-lucide="trending-up" class="chart-icon"></i>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="balanceTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card bar-chart-card">
+                        <div class="chart-header">
+                            <h3>Monthly Income vs Expenses</h3>
+                            <i data-lucide="bar-chart-3" class="chart-icon"></i>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="incomeVsExpenseChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card pie-chart-card">
+                        <div class="chart-header">
+                            <h3>Expense Categories Breakdown</h3>
+                            <i data-lucide="pie-chart" class="chart-icon"></i>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="expenseDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions Mini-List -->
+                <div class="dashboard-bottom-section">
+                    <div class="list-card">
+                        <div class="list-header">
+                            <h3>Recent Transactions</h3>
+                            <button class="btn btn-secondary btn-sm" id="view-all-transactions-link">
+                                View All <i data-lucide="chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="list-body">
+                            <div class="table-container">
+                                <table class="transaction-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Category</th>
+                                            <th>Description</th>
+                                            <th>Type</th>
+                                            <th class="text-right">Amount</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-transactions-tbody">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions Page Section -->
+            <section id="transactions-section" class="tab-content">
+                <div class="transactions-view-container">
+                    <!-- Filters Sidebar -->
+                    <aside class="filters-panel">
+                        <div class="panel-header">
+                            <h3>Filter Records</h3>
+                            <button id="reset-filters-btn" class="btn btn-text btn-sm">Clear All</button>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="filter-search">Description Search</label>
+                            <div class="search-input-wrapper">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="filter-search" placeholder="Search keyword...">
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Transaction Type</label>
+                            <div class="radio-toggle-group">
+                                <label class="radio-label active">
+                                    <input type="radio" name="filter-type" value="all" checked>
+                                    <span>All</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="filter-type" value="income">
+                                    <span>Income</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="filter-type" value="expense">
+                                    <span>Expense</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="filter-category">Category</label>
+                            <select id="filter-category">
+                                <option value="all">All Categories</option>
+                                <!-- Rendered dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Date Range</label>
+                            <div class="date-inputs-grid">
+                                <div>
+                                    <span class="sub-label">From</span>
+                                    <input type="date" id="filter-start-date">
+                                </div>
+                                <div>
+                                    <span class="sub-label">To</span>
+                                    <input type="date" id="filter-end-date">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Amount Range (₹)</label>
+                            <div class="amount-inputs-grid">
+                                <input type="number" id="filter-min-amount" placeholder="Min" min="0" step="any">
+                                <span class="range-divider">to</span>
+                                <input type="number" id="filter-max-amount" placeholder="Max" min="0" step="any">
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Large Transactions Table -->
+                    <div class="transactions-list-card">
+                        <div class="list-card-header">
+                            <h2>All Transactions (<span id="filtered-count-display">0</span>)</h2>
+                            <div class="header-actions">
+                                <select id="sort-transactions">
+                                    <option value="date-desc">Newest First</option>
+                                    <option value="date-asc">Oldest First</option>
+                                    <option value="amount-desc">Amount: High to Low</option>
+                                    <option value="amount-asc">Amount: Low to High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="table-container large-table">
+                            <table class="transaction-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th class="text-right">Amount</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="all-transactions-tbody">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                            <div class="empty-state" id="empty-transactions-state" style="display: none;">
+                                <i data-lucide="inbox"></i>
+                                <p>No transactions match your search filters.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Categories Page Section -->
+            <section id="categories-section" class="tab-content">
+                <div class="categories-view-grid">
+                    <!-- Category Creator -->
+                    <div class="category-form-card">
+                        <h2>Create Category</h2>
+                        <form id="add-category-form">
+                            <div class="form-group">
+                                <label>Category Type</label>
+                                <div class="radio-toggle-group">
+                                    <label class="radio-label active">
+                                        <input type="radio" name="cat-type" value="expense" checked>
+                                        <span>Expense Category</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="cat-type" value="income">
+                                        <span>Income Category</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cat-name">Category Name</label>
+                                <input type="text" id="cat-name" placeholder="e.g., Subscriptions, Side Gig" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i data-lucide="plus"></i> Add Category
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Category Lists View -->
+                    <div class="category-lists-card">
+                        <h2>Manage Categories</h2>
+                        <div class="category-lists-grid">
+                            <div class="cat-list-panel">
+                                <h3><span class="dot dot-expense"></span> Expense Categories</h3>
+                                <ul id="expense-categories-list" class="category-badge-list">
+                                    <!-- Rendered dynamically -->
+                                </ul>
+                            </div>
+                            <div class="cat-list-panel">
+                                <h3><span class="dot dot-income"></span> Income Categories</h3>
+                                <ul id="income-categories-list" class="category-badge-list">
+                                    <!-- Rendered dynamically -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add/Edit Transaction Modal -->
+    <div class="modal-backdrop" id="transaction-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Transaction</h2>
+                <button class="modal-close" id="close-modal-btn">&times;</button>
+            </div>
+            <form id="transaction-form">
+                <!-- Hidden input for ID when editing -->
+                <input type="hidden" id="tx-id-input">
+
+                <div class="form-group">
+                    <label>Transaction Type</label>
+                    <div class="radio-toggle-group">
+                        <label class="radio-label active" id="modal-label-expense">
+                            <input type="radio" name="tx-type" id="tx-type-expense" value="expense" checked required>
+                            <span>Expense</span>
+                        </label>
+                        <label class="radio-label" id="modal-label-income">
+                            <input type="radio" name="tx-type" id="tx-type-income" value="income" required>
+                            <span>Income</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tx-amount">Amount (₹)</label>
+                        <input type="number" id="tx-amount" placeholder="0.00" min="0.01" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tx-date">Date</label>
+                        <input type="date" id="tx-date" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tx-category">Category</label>
+                    <select id="tx-category" required>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tx-description">Description</label>
+                    <input type="text" id="tx-description" placeholder="e.g., Grocery shopping, Weekly payroll" required>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="save-modal-btn">Save Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Custom JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
